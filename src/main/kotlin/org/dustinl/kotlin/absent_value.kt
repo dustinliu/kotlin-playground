@@ -1,26 +1,35 @@
 package org.dustinl.kotlin
 
+import java.util.*
 import kotlin.reflect.KProperty
 
-class AbsentDelegator<T> {
-    private var value: T? = null
-    private var absent = true
+private object AbsentValue
 
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): T? {
-        return if (!absent) value as T else throw IllegalStateException("property '${property.name}' is absent")
+open class MissingDataClass protected constructor() {
+    private val propertiesMap: MutableMap<String, Any?> = HashMap()
+
+    fun hasValue(name: String) = propertiesMap.contains(name) && propertiesMap[name] !is AbsentValue
+
+    protected fun <T> delegator() = AbsentValueLoader<T>(propertiesMap)
+}
+
+class AbsentDelegator<T>(private val map: MutableMap<String, Any?>) {
+    operator fun getValue(thisRef: Any, property: KProperty<*>): T? {
+        val result = map[property.name]
+
+        @Suppress("UNCHECKED_CAST")
+        return if (result !is AbsentValue) result as T
+        else throw IllegalStateException("the value of property '${property.name}' is absent")
     }
 
-    operator fun setValue(thisRef: Any?, property: KProperty<*>, v: T?) {
-        absent = false
-        value = v
+    operator fun setValue(thisRef: Any, property: KProperty<*>, v: T?) {
+        map[property.name] = v
     }
 }
 
-class TestClass() {
-    var a by AbsentDelegator<String>()
-}
-
-fun main(args: Array<String>) {
-    val t = TestClass()
-    println(t.a)
+class AbsentValueLoader<T>(private val map: MutableMap<String, Any?>) {
+    operator fun provideDelegate(thisRef: Any?, prop: KProperty<*>): AbsentDelegator<T> {
+        map[prop.name] = AbsentValue
+        return AbsentDelegator(map)
+    }
 }
