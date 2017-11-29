@@ -5,14 +5,13 @@ import org.testng.annotations.Test
 import com.fasterxml.jackson.databind.ObjectMapper
 
 
-
 class AbsentValueTest {
-    class TestClass: MissingDataClass() {
+    class TestClass: OptionalDataClass() {
         var a by delegator<String>()
         var b by delegator<Int>()
     }
 
-    @Test(expectedExceptions = arrayOf(IllegalStateException::class))
+    @Test(expectedExceptions = [IllegalStateException::class])
     fun `test absent value`() {
         val testClass = TestClass()
         testClass.b = 1
@@ -44,9 +43,26 @@ class AbsentValueTest {
         assertTrue(testClass.b == 2)
     }
 
-    class Staff : MissingDataClass() {
-        var name by delegator<String>(); private set
-        var age by delegator<Int>(); private set
+    class Address(zip: Int) : OptionalDataClass() {
+        var zip by delegator<Int>()
+        init {
+            this.zip = zip
+        }
+    }
+
+    data class Data(val a: String, val b: Int)
+
+
+    class Staff() : OptionalDataClass() {
+        constructor(name: String, age: Int): this() {
+            this.name = name
+            this.age = age
+        }
+
+        var name by delegator<String>()
+        var age by delegator<Int>()
+        var addresses by delegator<Array<Address>>()
+        var data by delegator<Data>()
     }
 
     @Test
@@ -75,5 +91,11 @@ class AbsentValueTest {
         assertTrue(staff.hasValue("name"))
         assertEquals(staff.name, null)
         assertEquals(staff.age, 12)
+    }
+
+    @Test
+    fun `test empty obj to json`() {
+        val staff = Staff().apply { data = Data("Fdsf", 123); name = "fdsffdf"; age = null; addresses = arrayOf(Address(45), Address(78)) }
+        println(ObjectMapper().writeValueAsString(staff))
     }
 }
