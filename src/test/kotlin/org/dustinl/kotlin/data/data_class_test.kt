@@ -1,8 +1,8 @@
-package org.dustinl.kotlin
+package org.dustinl.kotlin.data
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.testng.Assert.*
 import org.testng.annotations.Test
-import com.fasterxml.jackson.databind.ObjectMapper
 
 
 class AbsentValueTest {
