@@ -1,4 +1,0 @@
-container {
-    name = "poker_jetty"
-    platform = "jetty"
-}
