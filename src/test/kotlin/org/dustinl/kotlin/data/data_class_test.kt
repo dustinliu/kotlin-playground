@@ -7,8 +7,8 @@ import org.testng.annotations.Test
 
 class AbsentValueTest {
     class TestClass: OptionalDataClass() {
-        var a by delegator<String>()
-        var b by delegator<Int>()
+        var a by delegate<String>()
+        var b by delegate<Int>()
     }
 
     @Test(expectedExceptions = [IllegalStateException::class])
@@ -44,7 +44,7 @@ class AbsentValueTest {
     }
 
     class Address(zip: Int) : OptionalDataClass() {
-        var zip by delegator<Int>()
+        var zip by delegate<Int>()
         init {
             this.zip = zip
         }
@@ -59,10 +59,10 @@ class AbsentValueTest {
             this.age = age
         }
 
-        var name by delegator<String>()
-        var age by delegator<Int>()
-        var addresses by delegator<Array<Address>>()
-        var data by delegator<Data>()
+        var name by delegate<String>()
+        var age by delegate<Int>()
+        var addresses by delegate<Array<Address>>()
+        var data by delegate<Data>()
     }
 
     @Test
